@@ -30,4 +30,26 @@ export async function signUp(c,{nome,re,email,password}){
 }
 export async function signOut(c){const token=await accessToken(c).catch(()=>null);clearSession(c);if(token)fetch(new URL('/auth/v1/logout?scope=local',c.url),{method:'POST',headers:{apikey:c.key,Authorization:'Bearer '+token},signal:AbortSignal.timeout(10000)}).catch(()=>{});}
 
-export function consumeAuthRedirect(c){const p=new URLSearchParams(location.hash.slice(1));if(p.get('access_token')&&p.get('refresh_token')){saveSession(c,{access_token:p.get('access_token'),refresh_token:p.get('refresh_token'),expires_in:Number(p.get('expires_in'))||3600});history.replaceState(null,'',location.pathname+location.search);}}
+// O Supabase conclui a confirmação antes de redirecionar de volta ao site.
+// Nunca interpretar um parâmetro isolado (?sucesso=1) como prova de confirmação.
+export function consumeAuthRedirect(c){
+ const params=new URLSearchParams(location.hash.slice(1));
+ const isCallback=['access_token','refresh_token','error','error_code'].some(k=>params.has(k));
+ if(!isCallback)return null;
+ // Remove os tokens e detalhes do callback da barra de endereço antes de renderizar.
+ history.replaceState(null,'',location.pathname+location.search);
+ if(params.has('error')||params.has('error_code')){
+  const expired=['otp_expired','token_expired'].includes(params.get('error_code'));
+  return {status:'error',message:expired?'O link de confirmação expirou ou já foi utilizado. Solicite um novo e-mail de confirmação.':'Não foi possível confirmar o e-mail. Solicite um novo link ou procure o administrador.'};
+ }
+ if(!params.get('access_token')||!params.get('refresh_token')){
+  return {status:'error',message:'O retorno da confirmação veio incompleto. Abra novamente o link enviado pelo Supabase.'};
+ }
+ // O sucesso só é exibido quando o Supabase devolve uma sessão após confirmar o cadastro.
+ if(['signup','email'].includes(params.get('type'))){
+  clearSession(c);
+  return {status:'confirmed'};
+ }
+ saveSession(c,{access_token:params.get('access_token'),refresh_token:params.get('refresh_token'),expires_in:Number(params.get('expires_in'))||3600});
+ return {status:'signed_in'};
+}
