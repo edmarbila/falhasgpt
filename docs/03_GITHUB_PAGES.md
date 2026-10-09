@@ -1,6 +1,6 @@
 # GitHub Pages — alternativa de hospedagem
 
-O site foi ajustado para URLs em subpasta, como `https://SEU-USUARIO.github.io/falhas-gpt/`. Imagens, fontes, JavaScript, leitor de planilhas, worker PDF e retorno do cadastro preservam essa subpasta.
+O site foi ajustado para URLs em subpasta, como `https://edmarbila.github.io/falhasgpt/`. Imagens, fontes, JavaScript, leitor de planilhas, worker PDF e retorno do cadastro preservam essa subpasta.
 
 **GitHub Pages normalmente publica a interface na internet, inclusive quando a origem é um repositório privado.** Uma URL privada tem requisitos específicos de plano/organização. O login/RE protege os dados do Supabase, mas não oculta os arquivos estáticos ou a tela de login. Para a exigência de URL privada, prefira a rota Cloudflare Pages + Access. Não habilite este workflow até aceitar o modelo de visibilidade da sua conta.
 
@@ -28,8 +28,8 @@ A alternativa às duas primeiras variáveis é preencher `public/project-config.
 2. Na aba **Actions**, abra **Publicar Falhas GPT no GitHub Pages**.
 3. Escolha **Run workflow** e a branch `main`, ou envie um novo commit para `main`.
 4. Aguarde os jobs `build` e `deploy` terminarem. A URL aparecerá no ambiente `github-pages` e nas configurações de Pages.
-5. Confira HTTPS e abra a URL completa com `/falhas-gpt/`, incluindo a barra final.
-6. Adicione **essa URL completa** no Auth do Supabase. A raiz `https://SEU-USUARIO.github.io/` não equivale à subpasta do projeto.
+5. Confira HTTPS e abra a URL completa com `/falhasgpt/`, incluindo a barra final.
+6. Em **Supabase > Authentication > URL Configuration**, configure **Site URL** e **Redirect URLs** com **essa URL completa**. Sem isso, o link de confirmação pode abrir o padrão `http://localhost:3000` no celular. A raiz `https://edmarbila.github.io/` não equivale à subpasta do repositório `falhasgpt`.
 7. Teste no celular seguindo `04_TESTES_PRATICOS.md`.
 
 Não é preciso criar branch `gh-pages`, selecionar a pasta `/docs`, executar Jekyll ou enviar a pasta `public` como raiz de um deploy por branch. O workflow incluído faz a publicação pelo artefato gerado.
