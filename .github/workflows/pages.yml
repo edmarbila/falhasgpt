@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: '22'
       - uses: actions/configure-pages@v5
+      - name: Preparar arquivo publico temporario
+        run: |
+          printf 'export const PUBLIC_PROJECT = null;\n' > public/project-config.js
       - name: Gerar site com a conexão pública
         run: npm run build:pages
         env:
