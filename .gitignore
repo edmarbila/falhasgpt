@@ -28,3 +28,4 @@ qa/
 *.dump
 *.bak
 *.sql.gz
+*.session-journal
