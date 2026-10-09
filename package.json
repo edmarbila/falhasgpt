@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.mjs",
     "build": "node build.mjs",
-    "test": "node tests/search.test.mjs && node tests/sql-engine.test.mjs && node tests/v4-security.test.mjs && node tests/imports.test.mjs && node tests/v5.test.mjs && node tests/installation.test.mjs && node tests/pages.test.mjs",
+    "test": "node tests/auth-redirect.test.mjs && node tests/search.test.mjs && node tests/sql-engine.test.mjs && node tests/v4-security.test.mjs && node tests/imports.test.mjs && node tests/v5.test.mjs && node tests/installation.test.mjs && node tests/pages.test.mjs",
     "build:pages": "node build.mjs --require-config"
   },
   "devDependencies": {
