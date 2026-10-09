@@ -47,6 +47,20 @@ Use o template padrão de confirmação com `{{ .ConfirmationURL }}`. Se você j
 
 Este pacote não acrescenta CAPTCHA, MFA, login social ou fluxo próprio de esqueci a senha. Configurações adicionais que exijam esses fluxos precisam de integração específica no frontend. A criação, confirmação e gestão de contas continuam sob o Supabase Auth.
 
+## C.1 Corrigir confirmação de e-mail que abre localhost:3000
+
+Se o usuário confirmou a conta, mas o link termina em localhost:3000 e mostra ERR_CONNECTION_REFUSED, o Supabase confirmou o e-mail, mas tentou abrir um servidor local inexistente no celular.
+
+No painel do Supabase abra Authentication > URL Configuration:
+
+1. Site URL: https://edmarbila.github.io/falhasgpt/ (se esse for o endereço publicado no GitHub Pages).
+2. Redirect URLs: adicione exatamente https://edmarbila.github.io/falhasgpt/ mantendo as URLs já utilizadas por outros projetos.
+3. Authentication > Email Templates > Confirm sign up: mantenha o padrão ConfirmationURL, sem URL localhost escrita manualmente.
+4. Confirme um cadastro novo no celular: o retorno deve abrir Falhas GPT e exibir “E-mail confirmado com sucesso! Faça login para acessar o Falhas GPT.”.
+5. Se a conta já foi confirmada, entre normalmente com e-mail e senha na URL publicada. O link já utilizado não volta a mostrar o sucesso.
+
+Para Cloudflare Pages ou domínio próprio, use a URL real do site em vez do exemplo GitHub Pages. O nome do repositório é falhasgpt, sem hífen.
+
 ## D. Conexão e API
 
 Copie **Project URL** e a chave **publishable** no diálogo **Connect** / configurações de **API Keys** do projeto. A chave `anon` legada também funciona. Preencha o arquivo de configuração conforme o README ou as variáveis do deploy. URL e chave precisam pertencer ao mesmo projeto.
