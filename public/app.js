@@ -61,5 +61,22 @@ function showPDFLink(url){openOverlay(drawerHead('Documento anexado')+`<h2 id="d
 configureAdmin({config:()=>config,catalog:()=>catalog,render,reloadCatalog:async()=>{catalog=await fetchCatalog(config);relatedCache.clear();attachmentCache.clear();conversation=[];searchResultsView=null;},openPDF:showPDFLink});
 async function checkAccess(){if(!config||!profile?.autorizado||demoMode)return;try{const next=await sessionInfo(config);if(!next?.autorizado||next.admin!==profile.admin){profile=next;catalog=[];conversation=[];resetAdmin();relatedCache.clear();attachmentCache.clear();closeOverlay();authError='Seu acesso mudou. Entre novamente ou consulte o administrador.';render();}}catch{}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkAccess();});setInterval(checkAccess,60000);
-if(config)consumeAuthRedirect(config);
+if(config){
+ try{
+  const callback=consumeAuthRedirect(config);
+  if(callback?.status==='confirmed'){
+   authMode='login';
+   authDraft={};
+   authNotice='E-mail confirmado com sucesso! Faça login para acessar o Falhas GPT.';
+   mood='success';
+   setMascotEvent('success');
+  }else if(callback?.status==='error'){
+   authMode='login';
+   authError=callback.message;
+  }
+ }catch{
+  authMode='login';
+  authError='Não foi possível concluir o retorno do cadastro. Tente entrar com seu e-mail e senha.';
+ }
+}
 if(viewNames[location.hash.slice(1)])view=location.hash.slice(1);render();if(config)loadLive();
