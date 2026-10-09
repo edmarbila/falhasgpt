@@ -37,7 +37,7 @@ Os schemas `auth` e `storage` devem ser os fornecidos pelo Supabase. Este não �
 | Uso | Exemplo de URL com barra final |
 | --- | --- |
 | Cloudflare Pages | `https://SEU-SITE.pages.dev/` |
-| GitHub Pages em repositório | `https://SEU-USUARIO.github.io/falhas-gpt/` |
+| GitHub Pages deste repositório | `https://edmarbila.github.io/falhasgpt/` |
 | Domínio próprio | `https://falhas.seudominio.com/` |
 | Teste local | `http://localhost:4173/` |
 
