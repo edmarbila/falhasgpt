@@ -1,0 +1,10 @@
+Falhas GPT
+Distribuicao: 5.1.0
+Data: 2026-10-08
+Banco: V5, com correcao pg_trgm incorporada
+Fonte-base: 95cc08f675cc94cf7a05bfa3d20410c74bb835ba
+Esta distribuicao inclui ajustes portaveis para Pages e instalador consolidado.
+Conexao: nao preenchida; use public/project-config.example.js.
+Inicio: README.md
+Banco novo: sql/instalacao/01_INSTALAR_COMPLETO_V5.sql
+Banco existente: siga sql/README.md

@@ -1,0 +1,19 @@
+{
+  "name": "falhas-gpt",
+  "version": "5.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node build.mjs",
+    "test": "node tests/search.test.mjs && node tests/sql-engine.test.mjs && node tests/v4-security.test.mjs && node tests/imports.test.mjs && node tests/v5.test.mjs && node tests/installation.test.mjs && node tests/pages.test.mjs",
+    "build:pages": "node build.mjs --require-config"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "pdfjs-dist": "6.4.299"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

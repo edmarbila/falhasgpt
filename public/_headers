@@ -1,0 +1,9 @@
+# Aplicado pelo Cloudflare Pages. O GitHub Pages ignora este arquivo.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
+
+/vendor/pdfjs/*.mjs
+  Content-Type: text/javascript; charset=utf-8

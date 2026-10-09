@@ -1,0 +1,43 @@
+name: Publicar Falhas GPT no GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+# Desativado por padrão. Leia docs/03_GITHUB_PAGES.md antes de habilitar.
+# Para Cloudflare Pages, não habilite esta variável.
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    if: ${{ vars.FGPT_ENABLE_GITHUB_PAGES == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - uses: actions/configure-pages@v5
+      - name: Gerar site com a conexão pública
+        run: npm run build:pages
+        env:
+          FGPT_SUPABASE_URL: ${{ vars.FGPT_SUPABASE_URL }}
+          FGPT_SUPABASE_PUBLIC_KEY: ${{ vars.FGPT_SUPABASE_PUBLIC_KEY }}
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4

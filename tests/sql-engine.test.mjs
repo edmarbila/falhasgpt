@@ -1,0 +1,44 @@
+import {PGlite} from '@electric-sql/pglite';
+import {pg_trgm} from '@electric-sql/pglite/contrib/pg_trgm';
+import {fuzzystrmatch} from '@electric-sql/pglite/contrib/fuzzystrmatch';
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const db=new PGlite({extensions:{pg_trgm,fuzzystrmatch}});
+await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+ CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid primary key,email text,created_at timestamptz default now());
+ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+ GRANT USAGE ON SCHEMA auth TO authenticated,anon; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,anon;
+ CREATE FUNCTION public.buscar_fgpt_v2(text,integer) RETURNS text LANGUAGE sql AS $$ SELECT 'preservada'::text $$;
+ INSERT INTO auth.users(id,email) VALUES ('11111111-1111-4111-8111-111111111111','owner@example.invalid'),('22222222-2222-4222-8222-222222222222','other@example.invalid');`);
+const install=await fs.readFile('sql/01_instalar_motor_busca.sql','utf8');
+await db.exec(install);console.log('PASS installer');
+await db.exec(await fs.readFile('sql/02_exemplos_para_validar.sql','utf8'));
+await db.exec(install);console.log('PASS reinstallation');
+assert.equal((await db.query(`SELECT public.buscar_fgpt_v2('x',1) result`)).rows[0].result,'preservada');
+for(const query of ['porta não abre','porta não fecha','prota nao abre','porta nao fexa','porta não está abrindo','realizar o isolamento','isolar porta','isolamneto de porta','restabelecer portas','portas','prota','compressor','xyzzy 919191','como fazer','nao','porta abre']){
+ const r=await db.query(`SELECT topico,relevancia,origem_match FROM public.buscar_fgpt_v3($1,10)`,[query]);console.log(JSON.stringify({query,results:r.rows}));
+}
+const expected=[['porta não abre','Porta não abre'],['PORTA NAO FECHA','Porta não fecha'],['prota nao abre','Porta não abre'],['porta nao fexa','Porta não fecha'],['isolamneto de porta','Isolamento de porta'],['restabelecer portas','Restabelecimento de portas']];
+for(const [q,title] of expected){const rows=(await db.query('SELECT * FROM public.buscar_fgpt_v3($1,10)',[q])).rows;assert.equal(rows[0].topico,title);assert.equal(new Set(rows.map(r=>r.id)).size,rows.length);assert.ok(rows.every((r,i)=>+r.relevancia>=0&&+r.relevancia<=100&&(!i||+rows[i-1].relevancia>=+r.relevancia)));}
+for(const q of ['',null,'nao','como fazer','zzzzzzx'])assert.equal((await db.query('SELECT * FROM public.buscar_fgpt_v3($1)',[q])).rows.length,0);
+assert.equal((await db.query('SELECT * FROM public.buscar_fgpt_v3($1,1)',['portas'])).rows.length,1);
+await assert.rejects(db.query('SELECT * FROM public.buscar_fgpt_v3($1)',['x'.repeat(201)]),/200 caracteres/);
+await db.exec(`INSERT INTO falhas_gpt.procedimentos(codigo,topico) VALUES ('RASCUNHO','Porta não abre rascunho');
+ INSERT INTO falhas_gpt.acessos(usuario_id) VALUES ('11111111-1111-4111-8111-111111111111');
+ SET ROLE authenticated;
+ SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);`);
+assert.equal((await db.query('SELECT * FROM public.vw_fgpt_acervo_v3')).rows.length,4);
+assert.equal((await db.query("SELECT topico FROM public.buscar_fgpt_v3('porta não abre')")).rows[0].topico,'Porta não abre');
+await assert.rejects(db.query("INSERT INTO falhas_gpt.acessos(usuario_id) VALUES ('22222222-2222-4222-8222-222222222222')"),/permission denied/);
+await assert.rejects(db.query("UPDATE falhas_gpt.procedimentos SET topico='alterado'"),/permission denied/);
+await db.exec("SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',false)");
+assert.equal((await db.query('SELECT * FROM public.vw_fgpt_acervo_v3')).rows.length,0);
+await assert.rejects(db.query("SELECT * FROM public.buscar_fgpt_v3('porta')"),/sem acesso/);
+await db.exec('RESET ROLE; SET ROLE anon;');
+await assert.rejects(db.query("SELECT * FROM public.buscar_fgpt_v3('porta')"),/permission denied/);
+await assert.rejects(db.query('SELECT * FROM public.vw_fgpt_acervo_v3'),/permission denied/);
+await db.exec('RESET ROLE;');
+await db.exec("INSERT INTO falhas_gpt.sinonimos(termo,equivalente) VALUES ('portinhola','porta')");
+assert.equal((await db.query("SELECT topico FROM public.buscar_fgpt_v3('portinhola nao abre')")).rows[0].topico,'Porta não abre');
+console.log('PASS ranking, bounds, reinstallation, old RPC preservation, synonyms reindex, RLS, draft isolation and blocked writes/anonymous reads.');
+await db.close();

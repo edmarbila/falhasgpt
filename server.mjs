@@ -1,0 +1,11 @@
+import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {spawn} from 'node:child_process';
+const root=fileURLToPath(new URL('./public/',import.meta.url));
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.woff2':'font/woff2','.pdf':'application/pdf','.json':'application/json'};
+const port=Number(process.env.PORT)||4173,url=`http://localhost:${port}`;
+const server=http.createServer(async(req,res)=>{try{const pathname=decodeURIComponent(new URL(req.url,url).pathname);const p=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));if(!p.startsWith(root))throw new Error('Invalid path');const data=await fs.readFile(p);res.writeHead(200,{'Content-Type':mime[path.extname(p)]||'application/octet-stream','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(data)}catch{res.writeHead(404);res.end('Arquivo nao encontrado')}});
+server.on('error',e=>{console.error(e.code==='EADDRINUSE'?`A porta ${port} ja esta em uso. Se o Falhas GPT ja estiver aberto, acesse ${url}. Feche o servidor anterior para iniciar esta versao.`:e.message);process.exitCode=1;});
+server.listen(port,'127.0.0.1',()=>{console.log(`Falhas GPT: ${url}\nMantenha esta janela aberta. Ctrl+C encerra o teste.`);if(process.argv.includes('--open')&&process.platform==='win32'){spawn('cmd.exe',['/d','/c','start','',url],{stdio:'ignore',windowsHide:true}).on('error',()=>console.log(`Abra ${url} no navegador.`));}});

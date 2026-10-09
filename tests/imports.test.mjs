@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import {normalizeRE,extractREs} from '../public/imports.js';
+assert.equal(normalizeRE('5900001'),'59-00001');assert.equal(normalizeRE('59-00001'),'59-00001');assert.equal(normalizeRE('58-00001'),null);
+const found=extractREs(['Nome','RE','João','59-00001',5900002,'59-00001','11 95900-0000','ABC5900003','59000031111','58-00004','RE: 59-00005']);assert.deepEqual(found.res,['59-00001','59-00002','59-00005']);assert.equal(found.duplicates,1);console.log('PASS RE extraction: names, phone numbers, IDs embedded in other strings ignored; canonical format and deduplication.');
