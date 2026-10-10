@@ -1,8 +1,11 @@
 import fs from 'node:fs/promises';import {spawnSync} from 'node:child_process';import assert from 'node:assert/strict';
 const env={...process.env};delete env.FGPT_SUPABASE_URL;delete env.FGPT_SUPABASE_PUBLIC_KEY;
 const run=extra=>spawnSync(process.execPath,['build.mjs','--require-config'],{env:{...env,...extra},encoding:'utf8'});
-const original=await fs.readFile('public/project-config.js','utf8');
-// Mantém a configuração do desenvolvedor intacta durante o teste.
+// Nao exige que o arquivo local (ignorado no Git) exista num clone novo.
+let original=null;
+try{original=await fs.readFile('public/project-config.js','utf8');}
+catch(e){if(e.code!=='ENOENT')throw e;}
+// Mantem a configuracao do desenvolvedor intacta durante o teste.
 try{
  await fs.writeFile('public/project-config.js','export const PUBLIC_PROJECT=null;\n');
  assert.notEqual(run({}).status,0);
@@ -25,5 +28,5 @@ try{
    for(const match of css.matchAll(/url\(['"]?(\.\/[^'"\)]+)['"]?\)/g))await fs.access('dist/'+new URL(match[1],base+name).href.slice(base.length));
   }
  }
-}finally{await fs.writeFile('public/project-config.js',original);await fs.rm('dist',{recursive:true,force:true});}
+}finally{if(original===null)await fs.rm('public/project-config.js',{force:true});else await fs.writeFile('public/project-config.js',original);await fs.rm('dist',{recursive:true,force:true});}
 console.log('PASS build Pages: configuração exigida, chaves privadas rejeitadas, assets locais, raiz/subpasta e artefato só com arquivos do site.');
