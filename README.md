@@ -90,6 +90,8 @@ GitHub Pages normalmente disponibiliza a página na internet mesmo quando o repo
 - [GitHub Pages e workflow](docs/03_GITHUB_PAGES.md)
 - [Testes em celular e desktop](docs/04_TESTES_PRATICOS.md)
 - [Atualizações, retorno à versão anterior e diagnóstico](docs/05_MANUTENCAO.md)
+- [Auditoria de segurança, proteção de RE e hospedagem privada](docs/06_AUDITORIA_SEGURANCA.md)
+- [SQL de auditoria de permissões (somente leitura)](sql/seguranca/01_AUDITAR_PERMISSOES.sql)
 - [Escolher os SQLs corretos](sql/README.md)
 
 Os guias V4/V5 anteriores e os SQLs históricos foram preservados para referência. **Para esta distribuição, siga este README e `sql/README.md`; não execute todos os arquivos SQL em sequência.**
