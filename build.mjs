@@ -1,9 +1,16 @@
-import {rm,cp,writeFile} from 'node:fs/promises';
+import {rm,cp,writeFile,access} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-import {PUBLIC_PROJECT} from './public/project-config.js';
-import {validateConfig,V3_DEFAULTS} from './public/backend.js';
-// Somente configuração pública. As variáveis são injetadas no artefato final.
+// O arquivo local de configuracao e ignorado no Git. No Cloudflare Pages,
+// ele nao existe no clone: crie um placeholder SEM credenciais antes dos imports.
 const root=new URL('./',import.meta.url),output=new URL('./dist/',root);
+const configFile=new URL('./public/project-config.js',root);
+try{await access(configFile)}catch(e){
+ if(e.code!=='ENOENT')throw e;
+ await writeFile(configFile,'export const PUBLIC_PROJECT = null;\n');
+}
+const {PUBLIC_PROJECT}=await import('./public/project-config.js');
+const {validateConfig,V3_DEFAULTS}=await import('./public/backend.js');
+// Somente configuracao publica. As variaveis sao injetadas no artefato final.
 const envURL=(process.env.FGPT_SUPABASE_URL||'').trim();
 const envKey=(process.env.FGPT_SUPABASE_PUBLIC_KEY||'').trim();
 let config=PUBLIC_PROJECT;
