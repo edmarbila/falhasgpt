@@ -2,6 +2,33 @@
 
 Este caminho mantém o código em um repositório GitHub e gera um novo deploy quando você envia alterações para `main`. Para restringir a própria URL, use Cloudflare Access. O login por RE do Falhas GPT continua sendo necessário para acessar o Supabase.
 
+## Projeto que ja esta no GitHub
+
+O projeto atual e `https://github.com/edmarbila/falhasgpt`, branch `main`.
+Nao e necessario criar outro repositorio. Para torna-lo privado, abra GitHub >
+repositorio > Settings > General > Danger Zone > Change repository visibility.
+Confirme que sua conta e colaboradores autorizados conseguem continuar acessando-o.
+A mudanca de visibilidade nao apaga copies, forks ou clones de quando ele era publico.
+
+O Cloudflare Pages Free aceita repositorios GitHub privados. Autorize sua conta no
+Cloudflare somente ao repositorio necessario e escolha **falhasgpt**, nao o
+nome ilustrativo **falhas-gpt** descrito no exemplo abaixo.
+
+Em clone novo, o `build.mjs` gera automaticamente um arquivo local neutro
+`public/project-config.js` quando ele nao existe. Ele permanece no `.gitignore`.
+No deploy, configure `FGPT_SUPABASE_URL` e `FGPT_SUPABASE_PUBLIC_KEY`;
+nao copie a configuracao local com dados reais para o Git.
+
+Antes de colocar operadores reais, rode
+`sql/seguranca/01_AUDITAR_PERMISSOES.sql` no Supabase e confira
+`docs/06_AUDITORIA_SEGURANCA.md`.
+
+Depois de confirmar que o Cloudflare funciona, desative GitHub Pages em
+Settings > Pages para nao manter a antiga URL ativa em paralelo.
+Desabilitar a variavel `FGPT_ENABLE_GITHUB_PAGES` sozinho nao retira do ar
+um site que ja foi publicado. No Supabase Auth, coloque a URL `.pages.dev/`
+em Site URL/Redirect URLs e revise os enderecos antigos.
+
 ## 1. Colocar o projeto no GitHub
 
 No GitHub, crie um repositório chamado, por exemplo, `falhas-gpt`, inicialmente **Private**, vazio, sem gerar outro README. Copie a URL HTTPS do seu repositório.
